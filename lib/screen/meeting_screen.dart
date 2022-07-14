@@ -94,7 +94,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
     );
 
 
-    localstream =   await navigator.mediaDevices.getUserMedia(mediaConstraints);
+    localstream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
     _localRenderer.srcObject = localstream;
     meetingHelper!.stream = localstream;
 
@@ -171,92 +171,6 @@ class _MeetingScreenState extends State<MeetingScreen> {
     });
   }
 
-  void startMeeting2() async {
-    final String? userId = await loadUserId();
-    meetingHelper = WebRTCMeetingHelper(
-      url: URL_MEETING,
-      meetingId: widget.meetingDetail.id,
-      userId: userId,
-      name: widget.name,
-    );
-
-
-    localstream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
-    _localRenderer.srcObject = localstream;
-    meetingHelper!.stream = localstream;
-
-
-    meetingHelper!.on('open', context, (ev, context) {
-      setState(() {
-        isConnectionFailed = false;
-      });
-    });
-    meetingHelper!.on('connection', context, (ev, context) {
-
-      log("log connection");
-      setState(() {
-        isConnectionFailed = false;
-      });
-    });
-    meetingHelper!.on('user-left', context, (ev, context) {
-      setState(() {
-        isConnectionFailed = false;
-      });
-    });
-
-    meetingHelper!.on('audio-toggle', context, (ev, context) {
-      setState(() {
-        isConnectionFailed = false;
-      });
-    });
-    meetingHelper!.on('video-toggle', context, (ev, context) {
-      setState(() {
-        isConnectionFailed = false;
-      });
-    });
-
-
-    meetingHelper!.on('meeting-ended', context, (ev, ctx) {
-      onMeetingEnd();
-    });
-
-    meetingHelper!.on('connection-setting-changed', context, (ev, ctx) {
-      setState(() {
-        // isConnectionFailed = false;
-      });
-    });
-
-    meetingHelper!.on('stream-changed', context, (ev, context) {
-      setState(() {
-        // isConnectionFailed = false;
-      });
-    });
-
-    meetingHelper!.on('message', context, (ev, context) {
-      setState(() {
-        isConnectionFailed = false;
-        //messages.add(ev.eventData as MessageFormat);
-      });
-    });
-
-
-
-
-    meetingHelper!.on('failed', context, (ev, context) {
-      const snackBar = SnackBar(content: Text('Connection Failed'));
-      scaffoldKey.currentState!.showSnackBar(snackBar);
-      setState(() {
-        isConnectionFailed = true;
-      });
-    });
-
-    meetingHelper!.on('not-found', context, (ev, context) {
-      meetingEndedEvent();
-    });
-    setState(() {
-      isValidMeeting = false;
-    });
-  }
 
   void onMeetingEnd()
   {
@@ -322,14 +236,24 @@ class _MeetingScreenState extends State<MeetingScreen> {
 
       if(issharingScreen)
       {
-        startMeeting2();
+        if(issharingScreen)
+        {
+
+          localstream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
+          _localRenderer.srcObject = localstream;
+          meetingHelper!.stream = localstream;
+
+        }
+       // startMeeting2();
 
         issharingScreen = !issharingScreen;
       }
       else
         {
-        startMeeting();
-        issharingScreen = !issharingScreen;
+          localstream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
+          _localRenderer.srcObject = localstream;
+          meetingHelper!.stream = localstream;
+          issharingScreen = !issharingScreen;
         }
 
 
