@@ -41,6 +41,17 @@ dependencies:
   http: ^0.13.4
   shared_preferences: ^2.0.15
   intl: ^0.17.0
+  provider:
+  timeago: ^3.0.2
+  url_launcher: ^6.0.2
+  flutter_parsed_text: ^2.1.0
+  font_awesome_flutter: ^9.0.0
+  fancy_shimmer_image: ^2.0.0-nullsafety.0
+  stream_transform: ^2.0.0
+  loading_indicator: ^2.0.1
+  flutter_background: ^1.0.0
+
+
 
 dev_dependencies:
   flutter_test:

@@ -6,7 +6,8 @@ class ControlPanel extends StatelessWidget {
   final bool? videoEnabled;
   final bool? audioEnabled;
   final bool? isConnectionFailed;
- // final bool? isChatOpen;
+  final VoidCallback? cameraToggle;
+  final VoidCallback? sharingScreen;
   final VoidCallback? onVideoToggle;
   final VoidCallback? onAudioToggle;
   final VoidCallback? onReconnect;
@@ -20,7 +21,9 @@ class ControlPanel extends StatelessWidget {
      this.onReconnect,
      this.isConnectionFailed,
      this.onMeetingEnd,
-   // required this.isChatOpen,
+     this.cameraToggle,
+     this.sharingScreen,
+
   });
 
   List<Widget> buildControls() {
@@ -29,6 +32,18 @@ class ControlPanel extends StatelessWidget {
         IconButton(
           onPressed: onVideoToggle,
           icon: Icon(videoEnabled! ? Icons.videocam : Icons.videocam_off),
+          color: Colors.white,
+          iconSize: 32.0,
+        ),
+        IconButton(
+          onPressed: cameraToggle,
+          icon: Icon(videoEnabled! ? Icons.videocam : Icons.toggle_on_sharp),
+          color: Colors.white,
+          iconSize: 32.0,
+        ),
+        IconButton(
+           onPressed: sharingScreen,
+          icon: const Icon(Icons.offline_share_sharp),
           color: Colors.white,
           iconSize: 32.0,
         ),
@@ -51,7 +66,7 @@ class ControlPanel extends StatelessWidget {
         ActionButton(
           text: 'Reconnect',
           onPressed: onReconnect!,
-          color: Colors.red,
+          color: Colors.green,
         ),
       ];
     }

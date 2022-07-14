@@ -1,5 +1,5 @@
 const meetingServices = require("../services/meeting_service");
-const MeetingPayloadEnum = require("./meeting-payload-enum");
+const { MeetingPayloadEnum } = require("./meeting-payload-enum");
 
 async function joinMeeting(meetingId, socket, meetingServer, payload) {
     const { userId, name } = payload.data;
@@ -60,7 +60,7 @@ function forwardConnectionRequest(meetingId, socket, meetingServer, payload) {
 }
 
 function forwardIceCandidate(meetingId, socket, meetingServer, payload) {
-    const { userId, otherUserId, condidate } = payload.data;
+    const { userId, otherUserId, candidate } = payload.data;
     var model =
     {
         meetingId: meetingId,
@@ -73,7 +73,7 @@ function forwardIceCandidate(meetingId, socket, meetingServer, payload) {
                 data:
                 {
                     userId,
-                    condidate
+                    candidate
                 }
             });
 

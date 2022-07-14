@@ -235,8 +235,36 @@ class WebRTCMeetingHelper extends EventEmitter {
     destroy();
   }
 
-  bool toggleVideo() {
+
+
+  bool isFrontCamera = true;
+
+  void switchCamera() async
+  {
     if (stream != null) {
+      bool value = await  Helper.switchCamera(stream!.getVideoTracks()[0]);
+      while (value == isFrontCamera)
+      {
+        value = await Helper.switchCamera(stream!.getVideoTracks()[0]);
+      }
+      isFrontCamera = value;
+    }
+
+  }
+
+  void shareScreen() async
+  {
+    if (stream != null)
+    {
+     stream = await navigator.mediaDevices.getDisplayMedia({'video':true,'audio':true});
+    }
+
+  }
+
+
+  bool toggleVideoOff() {
+    if (stream != null)
+    {
       final videoTrack = stream!.getVideoTracks()[0];
       final bool videoEnabled = videoTrack.enabled = !videoTrack.enabled;
       this.videoEnabled = videoEnabled;
@@ -318,8 +346,7 @@ class WebRTCMeetingHelper extends EventEmitter {
       case 'meeting-ended':
         meetingEnded(MeetingEndedData.fromJson(payload.data));
         break;
-      case 'icecandidate':
-        setIceCandidate(IceCandidateData.fromJson(payload.data));
+      case 'icecandidate': setIceCandidate(IceCandidateData.fromJson(payload.data));
         break;
       case 'video-toggle':
         listenVideoToggle(VideoToggleData.fromJson(payload.data));

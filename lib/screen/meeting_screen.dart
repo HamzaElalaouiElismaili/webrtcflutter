@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:webrtcmeet/webRtc/webrtc_meeting_helper.dart';
@@ -5,6 +7,7 @@ import 'package:webrtcmeet/widget/remote_connection.dart';
 import '../models/meeting_detail.dart';
 import '../screen/home_screen.dart';
 import '../service/meeting_api.dart';
+import '../util/task.dart';
 import '../util/user.util.dart';
 import '../widget/control_panel.dart';
 
@@ -12,11 +15,13 @@ class MeetingScreen extends StatefulWidget {
   final String name;
   final String? meetingId;
   final MeetingDetail meetingDetail;
+  bool sharingScreen ;
 
   MeetingScreen(
       {Key? key,
         this.meetingId,
       required this.name,
+        required this.sharingScreen,
       required this.meetingDetail})
       : super(key: key);
 
@@ -26,6 +31,7 @@ class MeetingScreen extends StatefulWidget {
 
 class _MeetingScreenState extends State<MeetingScreen> {
   final _localRenderer = RTCVideoRenderer();
+
   final Map<String, dynamic> mediaConstraints =
   {
     "audio": true,
@@ -40,8 +46,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool isChatOpen = false;
-  // List<MessageFormat> messages = [];
   final PageController pageController = PageController();
+  late MediaStream localstream ;
 
   @override
   void initState()
@@ -64,6 +70,7 @@ class _MeetingScreenState extends State<MeetingScreen> {
   initRenderers() async
   {
     await _localRenderer.initialize();
+
   }
 
   void goToHome() {
@@ -85,9 +92,12 @@ class _MeetingScreenState extends State<MeetingScreen> {
       userId: userId,
       name: widget.name,
     );
-    MediaStream _localstream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-    _localRenderer.srcObject = _localstream;
-    meetingHelper!.stream = _localstream;
+
+
+    localstream =   await navigator.mediaDevices.getUserMedia(mediaConstraints);
+    _localRenderer.srcObject = localstream;
+    meetingHelper!.stream = localstream;
+
 
     meetingHelper!.on('open', context, (ev, context) {
       setState(() {
@@ -95,6 +105,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
       });
     });
     meetingHelper!.on('connection', context, (ev, context) {
+
+      log("log connection");
       setState(() {
         isConnectionFailed = false;
       });
@@ -112,7 +124,94 @@ class _MeetingScreenState extends State<MeetingScreen> {
     });
     meetingHelper!.on('video-toggle', context, (ev, context) {
       setState(() {
+         isConnectionFailed = false;
+      });
+    });
+
+
+    meetingHelper!.on('meeting-ended', context, (ev, ctx) {
+      onMeetingEnd();
+    });
+
+    meetingHelper!.on('connection-setting-changed', context, (ev, ctx) {
+      setState(() {
         // isConnectionFailed = false;
+      });
+    });
+
+    meetingHelper!.on('stream-changed', context, (ev, context) {
+      setState(() {
+        // isConnectionFailed = false;
+      });
+    });
+
+    meetingHelper!.on('message', context, (ev, context) {
+      setState(() {
+        isConnectionFailed = false;
+        //messages.add(ev.eventData as MessageFormat);
+      });
+    });
+
+
+
+
+    meetingHelper!.on('failed', context, (ev, context) {
+      const snackBar = SnackBar(content: Text('Connection Failed'));
+      scaffoldKey.currentState!.showSnackBar(snackBar);
+      setState(() {
+        isConnectionFailed = true;
+      });
+    });
+
+    meetingHelper!.on('not-found', context, (ev, context) {
+      meetingEndedEvent();
+    });
+    setState(() {
+      isValidMeeting = false;
+    });
+  }
+
+  void startMeeting2() async {
+    final String? userId = await loadUserId();
+    meetingHelper = WebRTCMeetingHelper(
+      url: URL_MEETING,
+      meetingId: widget.meetingDetail.id,
+      userId: userId,
+      name: widget.name,
+    );
+
+
+    localstream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
+    _localRenderer.srcObject = localstream;
+    meetingHelper!.stream = localstream;
+
+
+    meetingHelper!.on('open', context, (ev, context) {
+      setState(() {
+        isConnectionFailed = false;
+      });
+    });
+    meetingHelper!.on('connection', context, (ev, context) {
+
+      log("log connection");
+      setState(() {
+        isConnectionFailed = false;
+      });
+    });
+    meetingHelper!.on('user-left', context, (ev, context) {
+      setState(() {
+        isConnectionFailed = false;
+      });
+    });
+
+    meetingHelper!.on('audio-toggle', context, (ev, context) {
+      setState(() {
+        isConnectionFailed = false;
+      });
+    });
+    meetingHelper!.on('video-toggle', context, (ev, context) {
+      setState(() {
+        isConnectionFailed = false;
       });
     });
 
@@ -202,16 +301,38 @@ class _MeetingScreenState extends State<MeetingScreen> {
   {
     if (meetingHelper != null) {
       setState(() {
-        meetingHelper!.toggleVideo();
+        meetingHelper!.toggleVideoOff();
       });
     }
   }
 
   void onAudioToggle() {
     if (meetingHelper != null) {
-      setState(() {
+      setState(()
+      {
         meetingHelper!.toggleAudio();
       });
+    }
+  }
+  bool  issharingScreen = true ;
+  void onScreeSharing()   async
+  {
+    if(meetingHelper != null)
+    {
+
+      if(issharingScreen)
+      {
+        startMeeting2();
+
+        issharingScreen = !issharingScreen;
+      }
+      else
+        {
+        startMeeting();
+        issharingScreen = !issharingScreen;
+        }
+
+
     }
   }
 
@@ -232,7 +353,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
   }
 
   void handleReconnect() {
-    if (meetingHelper != null) {
+    if (meetingHelper != null)
+    {
       meetingHelper!.reconnect();
     }
   }
@@ -307,6 +429,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
       bottomNavigationBar: ControlPanel(
         onAudioToggle: onAudioToggle,
         onVideoToggle: onVideoToggle,
+        cameraToggle: ()=> meetingHelper!.switchCamera(),
+        sharingScreen: onScreeSharing,//()=> meetingHelper!.shareScreen(),
         videoEnabled: isVideoEnabled(),
         audioEnabled: isAudioEnabled(),
         isConnectionFailed: isConnectionFailed,

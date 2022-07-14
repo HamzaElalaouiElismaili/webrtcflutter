@@ -1,9 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:webrtcmeet/screen/home_screen.dart';
+import 'dart:core';
 
+import 'package:flutter/foundation.dart' show debugDefaultTargetPlatformOverride;
+import 'package:flutter_background/flutter_background.dart';
 
-void main() {
+void main() async{
+
+  //await startForegroundTask();
+  WidgetsFlutterBinding.ensureInitialized();
+  startForegroundService();
+
   runApp(MyApp());
+}
+
+Future<bool> startForegroundService() async {
+  const androidConfig = FlutterBackgroundAndroidConfig(
+    notificationTitle: 'Title of the notification',
+    notificationText: 'Text of the notification',
+    notificationImportance: AndroidNotificationImportance.Default,
+    notificationIcon: AndroidResource(
+        name: 'background_icon',
+        defType: 'drawable'),
+  );
+  await FlutterBackground.initialize(androidConfig: androidConfig);
+  return FlutterBackground.enableBackgroundExecution();
 }
 
 class MyApp extends StatelessWidget {

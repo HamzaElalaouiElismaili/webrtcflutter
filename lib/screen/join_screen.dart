@@ -29,6 +29,7 @@ class _JoinScreenState extends State<JoinScreen> {
         MaterialPageRoute(builder: (BuildContext context)
         {
           return MeetingScreen(
+            sharingScreen: false,
         name: name,
         meetingDetail: widget.meetingDetail,
       );

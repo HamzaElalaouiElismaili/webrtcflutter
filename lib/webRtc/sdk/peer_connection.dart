@@ -36,8 +36,7 @@ class PeerConnection extends EventEmitter {
   };
 
   Future<void> start() async {
-    rtcPeerConnection =
-        await createPeerConnection(configuration, loopbackConstraints);
+    rtcPeerConnection = await createPeerConnection(configuration, loopbackConstraints);
     rtcPeerConnection!.addStream(localStream!);
     rtcPeerConnection!.onAddStream = _onAddStream;
     rtcPeerConnection!.onRemoveStream = _onRemoveStream;

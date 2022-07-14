@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class JoinedMeetingData {
@@ -127,6 +129,8 @@ class IceCandidateData {
   IceCandidateData({this.userId, this.name, this.candidate});
 
   factory IceCandidateData.fromJson(dynamic json) {
+    log("================================");
+    log(json.toString());
     return IceCandidateData(
       userId: json['userId'],
       name: json['name'],
