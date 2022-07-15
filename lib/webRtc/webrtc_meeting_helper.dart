@@ -256,9 +256,15 @@ class WebRTCMeetingHelper extends EventEmitter {
   {
     if (stream != null)
     {
-     stream = await navigator.mediaDevices.getDisplayMedia({'video':true,'audio':true});
-    }
 
+      navigator.mediaDevices.getDisplayMedia({'video':true,'audio':true}).then((value)
+      {
+        value = stream!;
+        value.addTrack(stream!.getVideoTracks()[0]);
+      } );
+
+
+    }
   }
 
 
@@ -362,30 +368,45 @@ class WebRTCMeetingHelper extends EventEmitter {
     }
   }
 
-  void destroy() {
-    if (transport != null) {
-      transport!.destroy();
-      transport = null;
-    }
-    for (var connection in connections) {
-      connection.close();
-    }
-    stopStream();
-    connections = [];
-    connected = false;
-    stream = null;
-    joined = false;
-  }
 
-  void reset() {
-    connections = [];
-    joined = false;
-    connected = false;
-  }
 
-  void reconnect() {
-    if (transport != null) {
-      transport!.reconnect();
+
+      void destroy() {
+        if (transport != null) {
+          transport!.destroy();
+          transport = null;
+        }
+        for (var connection in connections) {
+          connection.close();
+        }
+        stopStream();
+        connections = [];
+        connected = false;
+        stream = null;
+        joined = false;
+      }
+
+      void reset() {
+        connections = [];
+        joined = false;
+        connected = false;
+      }
+
+      void reconnect() {
+        if (transport != null) {
+          transport!.reconnect();
+        }
+      }
     }
-  }
+
+
+
+class Session {
+  Session({required this.sid, required this.pid});
+  String pid;
+  String sid;
+  RTCPeerConnection? pc;
+  RTCDataChannel? dc;
+  List<RTCIceCandidate> remoteCandidates = [];
 }
+

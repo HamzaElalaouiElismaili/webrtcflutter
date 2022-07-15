@@ -30,7 +30,8 @@ class MeetingScreen extends StatefulWidget {
 }
 
 class _MeetingScreenState extends State<MeetingScreen> {
-  final _localRenderer = RTCVideoRenderer();
+  final localRenderer = RTCVideoRenderer();
+  final remoteRender = RTCVideoRenderer();
 
   final Map<String, dynamic> mediaConstraints =
   {
@@ -47,7 +48,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
 
   bool isChatOpen = false;
   final PageController pageController = PageController();
-  late MediaStream localstream ;
+  late MediaStream localstream;
+  late MediaStream remotestram;
 
   @override
   void initState()
@@ -60,7 +62,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
   @override
   deactivate() {
     super.deactivate();
-    _localRenderer.dispose();
+    localRenderer.dispose();
+    remoteRender.dispose();
     if (meetingHelper != null) {
       meetingHelper!.destroy();
       meetingHelper = null;
@@ -69,8 +72,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
 
   initRenderers() async
   {
-    await _localRenderer.initialize();
-
+    await localRenderer.initialize();
+    await remoteRender.initialize();
   }
 
   void goToHome() {
@@ -88,15 +91,18 @@ class _MeetingScreenState extends State<MeetingScreen> {
     final String? userId = await loadUserId();
     meetingHelper = WebRTCMeetingHelper(
       url: URL_MEETING,
-      meetingId: widget.meetingDetail.id,
+      meetingId:widget.meetingDetail.id,
       userId: userId,
       name: widget.name,
     );
 
 
     localstream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-    _localRenderer.srcObject = localstream;
+    localRenderer.srcObject = localstream;
     meetingHelper!.stream = localstream;
+    //remotestram = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+   // localstream.addTrack(remotestram.getVideoTracks()[0]);
+  //  remoteRender.srcObject = remotestram;
 
 
     meetingHelper!.on('open', context, (ev, context) {
@@ -236,23 +242,18 @@ class _MeetingScreenState extends State<MeetingScreen> {
 
       if(issharingScreen)
       {
-        if(issharingScreen)
-        {
 
-          localstream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
-          _localRenderer.srcObject = localstream;
-          meetingHelper!.stream = localstream;
-
-        }
-       // startMeeting2();
-
-        issharingScreen = !issharingScreen;
+         var stream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
+         remoteRender.srcObject = stream;
+         meetingHelper!.stream = remotestram;
+         issharingScreen = !issharingScreen;
       }
       else
         {
-          localstream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
-          _localRenderer.srcObject = localstream;
-          meetingHelper!.stream = localstream;
+
+          var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+          localstream = stream;
+          localRenderer.srcObject = localstream;
           issharingScreen = !issharingScreen;
         }
 
@@ -325,7 +326,16 @@ class _MeetingScreenState extends State<MeetingScreen> {
           child: SizedBox(
             width: 150.0,
             height: 200.0,
-            child: RTCVideoView(_localRenderer),
+            child: RTCVideoView(localRenderer),
+          ),
+        ),
+        Positioned(
+          bottom: 10.0,
+          right: 500.0,
+          child: SizedBox(
+            width: 150.0,
+            height: 200.0,
+            child: RTCVideoView(remoteRender),
           ),
         )
       ],

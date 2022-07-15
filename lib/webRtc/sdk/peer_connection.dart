@@ -5,9 +5,7 @@ class PeerConnection extends EventEmitter {
   MediaStream? localStream;
   MediaStream? remoteStream;
   RTCVideoRenderer renderer = RTCVideoRenderer();
-
   RTCPeerConnection? rtcPeerConnection;
-
   PeerConnection({this.localStream});
 
   final Map<String, dynamic> configuration = {

@@ -14,7 +14,6 @@ async function joinMeeting(meetingId, socket, meetingServer, payload) {
             addUser(socket, { meetingId, userId, name }).then((result) => {
                 if (result) {
                     sendMessage(socket, { type: MeetingPayloadEnum.JOINED_MEETING, data: { userId } });
-
                     broadcastUsers(meetingId, socket, meetingServer,
                         {
                             type: MeetingPayloadEnum.USER_JOINED,
@@ -35,7 +34,7 @@ async function joinMeeting(meetingId, socket, meetingServer, payload) {
 
 
 
-function forwardConnectionRequest(meetingId, socket, meetingServer, payload) {
+function forwardConnectionRequest(meetingId, meetingServer, payload) {
     const { userId, otherUserId, name } = payload.data;
     var model =
     {
@@ -59,7 +58,7 @@ function forwardConnectionRequest(meetingId, socket, meetingServer, payload) {
     })
 }
 
-function forwardIceCandidate(meetingId, socket, meetingServer, payload) {
+function forwardIceCandidate(meetingId, meetingServer, payload) {
     const { userId, otherUserId, candidate } = payload.data;
     var model =
     {
@@ -68,6 +67,7 @@ function forwardIceCandidate(meetingId, socket, meetingServer, payload) {
     };
     meetingServices.getMeetingUser(model, (error, results) => {
         if (results) {
+            console.log("forwardIceCandidate");
             var sendPayload = JSON.stringify({
                 type: MeetingPayloadEnum.ICECANDIDATE,
                 data:
@@ -82,7 +82,7 @@ function forwardIceCandidate(meetingId, socket, meetingServer, payload) {
     })
 }
 
-function forwardOfferSDP(meetingId, socket, meetingServer, payload) {
+function forwardOfferSDP(meetingId, meetingServer, payload) {
     const { userId, otherUserId, sdp } = payload.data;
     var model =
     {
@@ -190,6 +190,7 @@ function addUser(socket, { meetingId, userId, name }) {
                     name: name,
                     isAlive: true,
                 };
+
                 meetingServices.joinMeeting(model, (error, results) => {
                     if (results) {
                         resolve(true);
@@ -221,10 +222,13 @@ function addUser(socket, { meetingId, userId, name }) {
 }
 
 function sendMessage(socket, payload) {
+
+    console.log(payload);
     socket.send(JSON.stringify(payload));
 }
 
 function broadcastUsers(meetingId, socket, meetingServer, payload) {
+
     socket.broadcast.emit("message", JSON.stringify(payload));
 }
 

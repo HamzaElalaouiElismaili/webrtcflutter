@@ -28,19 +28,20 @@ function handelMessage(meetingId, socket, meetingServer, message) {
     }
 
     switch (payload.type) {
+
         case MeetingPayloadEnum.JOIN_MEETING: meetingHelper.joinMeeting(meetingId, socket, meetingServer, payload)
             break;
-        case MeetingPayloadEnum.CONNECTION_REQUEST: meetingHelper.forwardConnectionRequest(meetingId, socket, meetingServer, payload)
+        case MeetingPayloadEnum.CONNECTION_REQUEST: meetingHelper.forwardConnectionRequest(meetingId, meetingServer, payload);
             break;
-        case MeetingPayloadEnum.OFFER_SDP: meetingHelper.forwardOfferSDP(meetingId, socket, meetingServer, payload)
+        case MeetingPayloadEnum.OFFER_SDP: meetingHelper.forwardOfferSDP(meetingId, meetingServer, payload);
             break;
-        case MeetingPayloadEnum.ICECANDIDATE: meetingHelper.forwardIceCandidate(meetingId, socket, meetingServer, payload)
+        case MeetingPayloadEnum.ANSWER_SDP: meetingHelper.forwardAnswerSDP(meetingId, socket, meetingServer, payload);
             break;
-        case MeetingPayloadEnum.ANSWER_SDP: meetingHelper.forwardAnswerSDP(meetingId, socket, meetingServer, payload)
+        case MeetingPayloadEnum.ICECANDIDATE: meetingHelper.forwardIceCandidate(meetingId, meetingServer, payload);
             break;
-        case MeetingPayloadEnum.LEAVE_MEETING: meetingHelper.userLeft(meetingId, socket, meetingServer, payload)
+        case MeetingPayloadEnum.LEAVE_MEETING: meetingHelper.userLeft(meetingId, socket, meetingServer, payload);
             break;
-        case MeetingPayloadEnum.END_MEETING: meetingHelper.endMeeting(meetingId, socket, meetingServer, payload)
+        case MeetingPayloadEnum.END_MEETING: meetingHelper.endMeeting(meetingId, socket, meetingServer, payload);
             break;
         case MeetingPayloadEnum.VIDEO_TOGGLE:
         case MeetingPayloadEnum.AUDIO_TOGGLE:
@@ -50,6 +51,9 @@ function handelMessage(meetingId, socket, meetingServer, message) {
             break;
         default:
             break;
+
+
+
 
     }
 }

@@ -1,15 +1,20 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:webrtcmeet/screen/home_screen.dart';
 import 'dart:core';
 
-import 'package:flutter/foundation.dart' show debugDefaultTargetPlatformOverride;
+import 'package:flutter/foundation.dart' show debugDefaultTargetPlatformOverride, kIsWeb;
 import 'package:flutter_background/flutter_background.dart';
 
 void main() async{
 
   //await startForegroundTask();
   WidgetsFlutterBinding.ensureInitialized();
-  startForegroundService();
+  if(!kIsWeb)
+  {
+    startForegroundService();
+  }
 
   runApp(MyApp());
 }

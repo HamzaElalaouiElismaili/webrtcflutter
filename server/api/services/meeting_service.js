@@ -25,7 +25,8 @@ async function joinMeeting(params, callback) {
     meetingUserModel
         .save()
         .then(async (response) => {
-            await meeting.findByIdAndUpdate(params.meetingId , { $addToSet: { "meetingUsers": meetingUserModel } });
+            console.log(params.meetingId);
+            await meeting.findByIdAndUpdate(params.meetingId, { $addToSet: { "meetingUsers": meetingUserModel } });
             return callback(null, response);
         }).catch((error) => {
             return callback(error);
@@ -49,7 +50,7 @@ async function isMeetingPresent(meetingId, callback) {
 async function checkMeetingExisits(meetingId, callback) {
 
     meeting.findById(meetingId)
-        .populate("meetingUsers")
+        .populate("meetingUsers", "MeetingUser")
         .then((response) => {
             if (!response) callback("Invalide Meeting ID");
             else callback(null, response);
@@ -62,6 +63,8 @@ async function getMeetingUser(params, callback) {
     const { meetingId, userId } = params;
 
     meetingUser.find({ meetingId, userId }).then((response) => {
+        console.log("===========");
+        console.log(response);
         return callback(null, response[0]);
     }).catch((error) => {
         return callback(error);

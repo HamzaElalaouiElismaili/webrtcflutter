@@ -5,25 +5,22 @@ import 'package:http/http.dart' as http;
 
 import '../util/user.util.dart';
 
-
-const String ip = '192.168.242.121' ;
-const String MEETING_API_URL = 'http://$ip:6000/api/meeting';
-const String URL_MEETING = 'http://$ip:5000';
-
-
-/*Future<http.Response> startMeeting() async {
-  var userId = await loadUserId();
-  var response =
-  await http.post(Uri.parse('$MEETING_API_URL/start'), body: {'userId': userId});
-  return response;
-}*/
+// change ip
+const String ip = '192.168.242.121';
+const String iplocale = "localhost";
+const String MEETING_API_URL = 'http://$ip:6000/api/meeting'; // http
+const String URL_MEETING = 'http://$ip:5000'; // ws
 
 
 Future<http.Response?> startMeeting() async
 {
+
   Map<String,String> requestHeaders =
   {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "Access-Control_Allow_Origin": "*",
+    "Accept": "application/json",
+
   };
   var userId = await loadUserId();
   log(userId.toString());
@@ -55,7 +52,15 @@ Future<http.Response?> startMeeting() async
 
 Future<http.Response> joinMeeting(String meetingId) async
 {
-  var response = await http.get(Uri.parse('$MEETING_API_URL/join?meetingId=$meetingId'));
+  var response = await http.get(Uri.parse('$MEETING_API_URL/join?meetingId=$meetingId'),
+  headers:
+      {
+      "Content-Type": "application/json",
+      "Access-Control_Allow_Origin": "*",
+     "Accept": "application/json",
+
+      }
+  );
   if (response.statusCode >= 200 && response.statusCode < 400) {
     return response;
   }
